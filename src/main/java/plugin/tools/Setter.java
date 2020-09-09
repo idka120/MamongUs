@@ -23,6 +23,7 @@ public class Setter implements Listener {
 
     public static ItemStack VentSetter;
     public static ItemStack LocationSetter;
+    public static ItemStack NPCSetter;
 
     @EventHandler
     public void onChat(AsyncPlayerChatEvent e) {
@@ -50,6 +51,8 @@ public class Setter implements Listener {
                 inv.setItem(10, VentSetter);
                 LocationSetter = ib.setItem(Material.BLAZE_ROD, "§e위치 설정", Arrays.asList("§f위치를 설정하세요", " ", "§e[§f우클릭(모든블록)§e] §f그 블록의 위치를 가져오고 저장합니다", "§c[§f관련 명령어§c] §f@location <usage>")).addEnchantment(Enchantment.DAMAGE_ALL, 1).addItemFlag(ItemFlag.HIDE_ENCHANTS).getItem();
                 inv.setItem(11, LocationSetter);
+                NPCSetter = ib.setItem(Material.BLAZE_ROD, "§eNPC설정", Arrays.asList("§fNPC에 관하여 설정하세요", " ", "§e[§f우클릭(모든블록)§e] §f그 블록의 위치를 가져옵니다", "§e[§f우클릭(엔티티)§e] §f클릭한 엔티티를 가져옵니다" ,"§c[§f관련 명령어§c] §f@NPC <usage> <game> <type>")).addEnchantment(Enchantment.DAMAGE_ALL, 1).addItemFlag(ItemFlag.HIDE_ENCHANTS).getItem();
+                inv.setItem(12, NPCSetter);
                 e.getPlayer().openInventory(inv);
             }
             e.setCancelled(true);
