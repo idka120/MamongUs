@@ -97,6 +97,7 @@ public class LocationSetter implements Listener {
                         locations.add(e.getClickedBlock().getLocation());
                         p.sendMessage("위치가 저장되었습니다");
                         previous = e.getClickedBlock().getLocation();
+                        e.setCancelled(true); //이벤트 캔슬 시키는 구문(단, 이 이벤트가 Cancellable를 구현해야함)
                     }
                 }
             }
