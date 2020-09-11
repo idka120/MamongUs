@@ -1,0 +1,16 @@
+plugin\main\TestCommands.class
+plugin\game\WaitingRoom.class
+plugin\main\MamongUs.class
+plugin\environment\Events.class
+plugin\game\Game.class
+plugin\tools\LocationSetter.class
+plugin\main\Role.class
+plugin\environment\PlayerData.class
+plugin\game\Events.class
+plugin\environment\Vent.class
+plugin\main\ItemBuild.class
+plugin\tools\Setter$1.class
+plugin\game\Direction.class
+plugin\game\Game$1.class
+plugin\tools\NPCSetter.class
+plugin\tools\Setter.class

@@ -1,15 +1,13 @@
 package plugin.tools;
 
 import com.mojang.authlib.GameProfile;
-import net.minecraft.server.v1_12_R1.EntityPlayer;
-import net.minecraft.server.v1_12_R1.MinecraftServer;
-import net.minecraft.server.v1_12_R1.PacketPlayOutPlayerInfo;
-import net.minecraft.server.v1_12_R1.WorldServer;
+import net.minecraft.server.v1_12_R1.*;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.craftbukkit.v1_12_R1.CraftServer;
 import org.bukkit.craftbukkit.v1_12_R1.CraftWorld;
+import org.bukkit.craftbukkit.v1_12_R1.entity.CraftPlayer;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -22,12 +20,32 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.HashMap;
+import java.util.UUID;
+
 public class NPCSetter implements Listener {
 
+    public static void createNPC(Player p, String name, float yaw, float pitch) {
+        Location loc = new Location(p.getWorld(), (int) p.getLocation().getX() + 0.5, (int) p.getLocation().getY(), (int) p.getLocation().getZ() + 0.5);
+        MinecraftServer sever = ((CraftServer) Bukkit.getServer()).getServer();
+        WorldServer world = ((CraftWorld) p.getWorld()).getHandle();
+
+        EntityPlayer npc = new EntityPlayer(sever, world, new GameProfile(p.getUniqueId(), name) , new PlayerInteractManager(world));
+        Player npcPlayer = npc.getBukkitEntity().getPlayer();
+        npcPlayer.setPlayerListName("");
+        npc.setLocation(loc.getX(), loc.getY(), loc.getZ(), yaw, pitch);
+
+        PlayerConnection connection = ((CraftPlayer) p).getHandle().playerConnection;
+        connection.sendPacket(new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.ADD_PLAYER, npc));
+        connection.sendPacket(new PacketPlayOutNamedEntitySpawn(npc));
+    }
+
     Entity previousEntity;
+    private HashMap<EntityPlayer, Location> npcs = new HashMap<>();
 
     @EventHandler
     public void onJoin(PlayerJoinEvent e) {
+
         Player p = e.getPlayer();
     }
 
@@ -55,11 +73,6 @@ public class NPCSetter implements Listener {
 
         Player sender = e.getPlayer();
         String message = e.getMessage();
-
-        MinecraftServer sever = ((CraftServer) Bukkit.getServer()).getServer();
-        WorldServer world = ((CraftWorld) e.getPlayer().getWorld()).getHandle();
-
-        //EntityPlayer npc = new EntityPlayer(sever, world, profile_1, );
 
         if(message.indexOf("@") == 0 && message.indexOf("npc") == 1) {
             message = message.replace("@npc", "").trim();

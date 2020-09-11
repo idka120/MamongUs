@@ -1,0 +1,13 @@
+name: MamongUs
+version: 1.0.0
+main: plugin.main.MamongUs
+authors: [adhex0608]
+description: mincraft among us plugin
+website: 난 아무것도 몰라요~#5637
+commands:
+  test:
+    description: test
+  t:
+    description: test
+  test2:
+    description: test
