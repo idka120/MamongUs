@@ -90,7 +90,7 @@ public class LocationSetter implements Listener {
     @EventHandler
     public void onClick(PlayerInteractEvent e) {
         Player p = e.getPlayer();
-        if(p.getInventory().getItemInMainHand() != null && p.getInventory().getItemInMainHand().getItemMeta() != null) {
+        if(p.getInventory().getItemInMainHand() != null && p.getInventory().getItemInMainHand().getItemMeta().getDisplayName() != null) {
             if (e.getHand() == EquipmentSlot.HAND) {
                 if (e.getAction() == Action.RIGHT_CLICK_BLOCK) {
                     if (p.getInventory().getItemInMainHand().getItemMeta().getDisplayName().equals("§e위치 설정")) {

@@ -21,9 +21,10 @@ public class Setter implements Listener {
 
     private final Inventory inv = Bukkit.createInventory(null, 45, "§7Tools");
 
-    public static ItemStack VentSetter;
-    public static ItemStack LocationSetter;
-    public static ItemStack NPCSetter;
+    protected static ItemStack VentSetter;
+    protected static ItemStack LocationSetter;
+    protected static ItemStack NPCSetter;
+    protected static ItemStack SectionSetter;
 
     @EventHandler
     public void onChat(AsyncPlayerChatEvent e) {
