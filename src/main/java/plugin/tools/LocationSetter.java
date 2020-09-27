@@ -10,6 +10,7 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import plugin.game.Direction;
+import plugin.game.Game;
 
 import java.util.*;
 
@@ -23,6 +24,7 @@ public class LocationSetter implements Listener {
     public static Location crew;
     public static String direction;
     public static Location imposter;
+    public static HashMap<Game, Location> games = new HashMap<>();
 
     @EventHandler
     public void onChat(AsyncPlayerChatEvent e) {

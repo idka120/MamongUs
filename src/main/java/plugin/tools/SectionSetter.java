@@ -9,8 +9,9 @@ import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
+import plugin.game.Direction;
 
-import java.util.List;
+import java.util.HashMap;
 
 public class SectionSetter implements Listener {
 
@@ -19,19 +20,9 @@ public class SectionSetter implements Listener {
     private Location loc1;
     private Location loc2;
 
-    private List<Section> sections;
+    private HashMap<String, SectionData> data = new HashMap<>();
 
-    private static class Section {
 
-        private Location pos1;
-        private Location pos2;
-        private Location mainPos;
-
-        public Section(Location loc1, Location loc2) {
-            pos1 = new Location(loc1.getWorld(), (int) loc1.getX(), (int) loc1.getY(), (int) loc1.getZ());
-            pos2 = new Location(loc2.getWorld(), (int) loc2.getX(), (int) loc2.getY(), (int) loc2.getZ());
-        }
-    }
 
     @EventHandler
     public void onChat(AsyncPlayerChatEvent e) {
@@ -48,14 +39,29 @@ public class SectionSetter implements Listener {
                         }else if(loc2 == null) {
                             sender.sendMessage("두번째 위치를 지정해 주세요");
                         }else {
-                            sections.add(new Section(loc1, loc2));
+                            data.put(data.size() + "", new SectionData(loc1, loc2));
+                            sender.sendMessage("섹션이 저장되었습니다!");
                         }
                     case "show" :
-                        if(sections.size() > 0) {
-
+                        if(data.size() > 0) {
+                            data.forEach((string, sectionData) -> sender.sendMessage("섹션 " + string + "의 첫번째 위치 ("+ (int) sectionData.getPos1().getX() + ", " + (int) sectionData.getPos1().getY() + ", " + (int) sectionData.getPos1().getZ() + ") 와 두번째 위치 ("+ (int) sectionData.getPos1().getX() + ", " + (int) sectionData.getPos1().getY() + ", " + (int) sectionData.getPos1().getZ() + ")"));
                         }else {
-                            sender.sendMessage("아직 위치가 지정되어있지 않습니다");
+                            sender.sendMessage("아직 section가 지정되어있지 않습니다");
                         }
+                }
+            }else if(args.length == 2) {
+                if ("set".equals(args[0])) {
+                    if (data.get(args[1]) != null && data.containsKey(args[1])) {
+                        sender.sendMessage(args[1] + "이라는 이름의 섹션이 변경되었습니다");
+                        data.put(args[1], data.get(args[1]).setSection(loc1, loc2));
+                    } else {
+                        sender.sendMessage("알 수 없는 이름의 섹션입니다");
+                    }
+                }
+            }else if(args.length == 3) {
+                switch (args[0]) {
+                    case "autoLoad":
+
                 }
             }
         }
@@ -64,16 +70,18 @@ public class SectionSetter implements Listener {
     @EventHandler
     public void onClick(PlayerInteractEvent e) {
         Player p = e.getPlayer();
-        if(p.getInventory().getItemInMainHand() != null && p.getInventory().getItemInMainHand().getItemMeta().getDisplayName() != null) {
+        if(p.getInventory().getItemInMainHand().getItemMeta().getDisplayName().equals(" ")) {
             if (e.getHand() == EquipmentSlot.HAND) {
                 if (e.getAction() == Action.RIGHT_CLICK_BLOCK) {
-                    if (p.getInventory().getItemInMainHand().getItemMeta().getDisplayName().equals("§e위치 설정")) {
+                    if (p.getInventory().getItemInMainHand().getItemMeta().getDisplayName().equals("§e위치 설정") && e.getClickedBlock().getLocation() != loc1) {
                         loc1 = e.getClickedBlock().getLocation();
+                        p.sendMessage("첫번째 위치가 " + loc1.getX() + ", " + loc1.getY() + ", " + loc1.getZ() + "로 지정되었습니다");
                         e.setCancelled(true);
                     }
                 }else if(e.getAction() == Action.LEFT_CLICK_BLOCK) {
-                    if (p.getInventory().getItemInMainHand().getItemMeta().getDisplayName().equals("§e위치 설정")) {
+                    if (p.getInventory().getItemInMainHand().getItemMeta().getDisplayName().equals("§e위치 설정") && e.getClickedBlock().getLocation() != loc2) {
                         loc2 = e.getClickedBlock().getLocation();
+                        p.sendMessage("두번째 위치가 " + loc2.getX() + ", " + loc2.getY() + ", " + loc2.getZ() + "로 지정되었습니다");
                         e.setCancelled(true);
                     }
                 }

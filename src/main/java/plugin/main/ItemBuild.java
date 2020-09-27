@@ -10,7 +10,7 @@ import java.util.List;
 
 public class ItemBuild {
 
-    private final ItemStack stack = new ItemStack(Material.STAINED_GLASS_PANE);
+    private final ItemStack stack = new ItemStack(Material.WHITE_STAINED_GLASS_PANE);
     private ItemMeta meta;
 
     public ItemBuild() {}
