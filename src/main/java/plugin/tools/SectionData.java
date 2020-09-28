@@ -1,16 +1,12 @@
 package plugin.tools;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.LivingEntity;
-import org.bukkit.entity.Player;
 import plugin.game.Direction;
 
 import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Consumer;
 
 public class SectionData {
 
@@ -47,27 +43,137 @@ public class SectionData {
         }
     }
 
-    public void load(Location loc) {
+    private void load(Location loc) {
         blocks.forEach((kx, vy) -> vy.forEach((ky, vz) -> vz.forEach((kz, block) -> {
             loc.getWorld().getBlockAt(kx + (int) loc.getX(), ky + (int) loc.getY(), kz + (int) loc.getZ()).setType(block.getType());
             loc.getWorld().getBlockAt(kx + (int) loc.getX(), ky + (int) loc.getY(), kz + (int) loc.getZ()).setBlockData(block.getBlockData());
         })));
     }
 
+    public int getBlockCount() {
+        int count = 0;
+        for(Integer x : blocks.keySet()) for(Integer y : blocks.get(x).keySet()) for(Integer z : blocks.get(x).get(y).keySet()) {
+            count += 1;
+        }
+        return count;
+    }
+
+    public boolean isFilled(Material type) {
+        for(Integer x : blocks.keySet()) for(Integer y : blocks.get(x).keySet()) for(Integer z : blocks.get(x).get(y).keySet()) {
+            if(blocks.get(x).get(y).get(z).getType() != type) return false;
+        }
+        return true;
+    }
+
+    public boolean isFilled(Block b) {
+        for(Integer x : blocks.keySet()) for(Integer y : blocks.get(x).keySet()) for(Integer z : blocks.get(x).get(y).keySet()) {
+            if(blocks.get(x).get(y).get(z) != b) return false;
+        }
+        return true;
+    }
+
+    public boolean contain(Material type) {
+        for(Integer x : blocks.keySet()) for(Integer y : blocks.get(x).keySet()) for(Integer z : blocks.get(x).get(y).keySet()) {
+            if(blocks.get(x).get(y).get(z).getType() == type) return true;
+        }
+        return false;
+    }
+
+    public boolean contains(Block b) {
+        for(Integer x : blocks.keySet()) for(Integer y : blocks.get(x).keySet()) for(Integer z : blocks.get(x).get(y).keySet()) {
+            if(blocks.get(x).get(y).get(z) == b) return true;
+        }
+        return false;
+    }
+
+    public boolean isVoid() {
+        for(Integer x : blocks.keySet()) for(Integer y : blocks.get(x).keySet()) for(Integer z : blocks.get(x).get(y).keySet()) {
+            if(blocks.get(x).get(y).get(z).getType() != Material.VOID_AIR) return false;
+        }
+        return true;
+    }
+
+    public boolean isAir() {
+        for(Integer x : blocks.keySet()) for(Integer y : blocks.get(x).keySet()) for(Integer z : blocks.get(x).get(y).keySet()) {
+            if(blocks.get(x).get(y).get(z).getType() != Material.AIR && blocks.get(x).get(y).get(z).getType() != Material.CAVE_AIR) return false;
+        }
+        return true;
+    }
+
     public void load(Location loc, boolean force, String direction, LivingEntity sender) {
-        if (force) {
-            try {
-                Direction dir = Direction.toDirection(direction);
-                boolean b = true;
-                while (b) {
+        try {
+            Direction dir = Direction.toDirection(direction);
+            if (!force) {
+                loop : for(int i = 0;; i++) {
                     switch (dir) {
                         case SOUTH:
-                            int i = Math.abs(pos1.getBlockX() - pos2.getBlockX()) + 1;
+                            loc.add(0, 0, (Math.abs(pos1.getBlockZ() - pos2.getBlockZ()) + 1) * i);
+                            if(isAir()) {
+                                load(loc);
+                                break loop;
+                            }
+                            break;
+                        case NORTH:
+                            loc.add(0, 0, (-(Math.abs(pos1.getBlockZ() - pos2.getBlockZ()) + 1)) * i);
+                            if(isFilled(Material.AIR)) {
+                                load(loc);
+                                break loop;
+                            }
+                            break;
+                        case EAST:
+                            loc.add((Math.abs(pos1.getBlockX() - pos2.getBlockX()) + 1) * i, 0, 0);
+                            if(isFilled(Material.AIR)) {
+                                load(loc);
+                                break loop;
+                            }
+                            break;
+                        case WEST:
+                            loc.add((-(Math.abs(pos1.getBlockX() - pos2.getBlockX()) + 1)) * i, 0, 0);
+                            if(isFilled(Material.AIR)) {
+                                load(loc);
+                                break loop;
+                            }
+                            break;
+                        case UP:
+                            loc.add((Math.abs(pos1.getBlockY() - pos2.getBlockY()) + 1) * i, 0, 0);
+                            if(isFilled(Material.AIR)) {
+                                load(loc);
+                                break loop;
+                            }
+                            break;
+                        case DOWN:
+                            loc.add(    -(Math.abs(pos1.getBlockY() - pos2.getBlockY()) + 1) * i, 0, 0);
+                            if(isFilled(Material.AIR)) {
+                                load(loc);
+                                break loop;
+                            }
+                            break;
                     }
                 }
-            } catch (IllegalArgumentException ex) {
-                sender.sendMessage("§c알 수 없는 방향입니다");
+            }else {
+                switch (dir) {
+                    case SOUTH:
+                        loc.add(0, 0, Math.abs(pos1.getBlockZ() - pos2.getBlockZ()) + 1);
+                        break;
+                    case NORTH:
+                        loc.add(0, 0, -(Math.abs(pos1.getBlockZ() - pos2.getBlockZ()) + 1));
+                        break;
+                    case EAST:
+                        loc.add(Math.abs(pos1.getBlockX() - pos2.getBlockX()) + 1, 0, 0);
+                        break;
+                    case WEST:
+                        loc.add(-(Math.abs(pos1.getBlockX() - pos2.getBlockX()) + 1), 0, 0);
+                        break;
+                    case UP:
+                        loc.add(Math.abs(pos1.getBlockY() - pos2.getBlockY()) + 1, 0, 0);
+                        break;
+                    case DOWN:
+                        loc.add(-(Math.abs(pos1.getBlockY() - pos2.getBlockY()) + 1), 0, 0);
+                        break;
+                }
             }
+        } catch (IllegalArgumentException ex) {
+            sender.sendMessage("§c알 수 없는 방향입니다");
         }
     }
 }

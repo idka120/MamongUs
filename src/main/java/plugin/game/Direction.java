@@ -2,29 +2,21 @@ package plugin.game;
 
 public enum Direction {
 
-    /**
-     * 함수식: y = -x(x는 양수)와 y = x(x는 음수)
-     */
-    WEST("west", 270),
-    /**
-     * 함수식: y = -x(x는 음 수)와 y = x(x는 양수)
-     */
-    EAST("east", 90),
-    /**
-     * 함수식: y = -x(x는 음수)와 y = x(x는 음수)
-     */
-    NORTH("north", 0),
-    /**
-     * 함수식: y = -x(x는 양수)와 y = x(x는 양수)
-     */
-    SOUTH("south", 180);
+    WEST("west", 270, 90),
+    EAST("east", 90, 90),
+    NORTH("north", 0, 90),
+    SOUTH("south", 180, 90),
+    UP("up", 0, 0),
+    DOWN("down", 0, 180);   
 
     private final String direction;
     private final int yaw;
+    private final int pitch;
 
-    Direction(String dir, int yaw) {
+    Direction(String dir, int yaw, int pitch) {
         this.direction = dir;
         this.yaw = yaw;
+        this.pitch = pitch;
     }
 
     public String getDirection() {
@@ -33,6 +25,10 @@ public enum Direction {
 
     public int getYaw() {
         return yaw;
+    }
+
+    public int getPitch() {
+        return pitch;
     }
 
     public static Direction toDirection(String str) {
