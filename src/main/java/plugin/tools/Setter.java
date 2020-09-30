@@ -32,16 +32,15 @@ public class Setter implements Listener {
         if(message.indexOf("@") == 0) {
             if (message.indexOf("setter") == 1) {
                 //기본 인벤토리 세팅
-                ItemStack stack = new ItemStack(Material.STAINED_GLASS_PANE);
+                ItemStack stack = new ItemStack(Material.YELLOW_STAINED_GLASS_PANE);
                 ItemMeta meta = stack.getItemMeta();
                 meta.setDisplayName(" ");
                 stack.setItemMeta(meta);
-                stack.setData(new MaterialData(15));
 
 
                 ItemBuild ib = new ItemBuild(); //아이템빌드 객체 생성
 
-                inv.setItem(4, ib.setItem(Material.SIGN, "§7Tools - Setter", Arrays.asList("§f다양한 도구를 만나보세요!")).getItem());
+                inv.setItem(4, ib.setItem(Material.OAK_SIGN, "§7Tools - Setter", Arrays.asList("§f다양한 도구를 만나보세요!")).getItem());
                 inv.setItem(40, ib.setItem(Material.BARRIER, "§c나가기", Arrays.asList("§f툴박스를 나갑니다")).getItem()); //36, 37, 38,
 
                 //인벤토리에 넣기
@@ -66,8 +65,8 @@ public class Setter implements Listener {
         Material m = e.getCurrentItem().getType();
         if(e.getView().getTitle().equals("§7Tools")) {
             switch (m) {
-                case STAINED_GLASS_PANE:
-                case SIGN:
+                case YELLOW_STAINED_GLASS_PANE:
+                case OAK_SIGN:
                 case AIR:
                     e.setCancelled(true);
                     break;

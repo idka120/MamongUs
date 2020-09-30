@@ -3,7 +3,8 @@ version: 1.0.0
 main: plugin.main.MamongUs
 authors: [adhex0608]
 description: mincraft among us plugin
-website: 난 아무것도 몰라요~#5637
+website: 난 아무것도 몰라요~#0620
+api-version: 1.16
 commands:
   test:
     description: test

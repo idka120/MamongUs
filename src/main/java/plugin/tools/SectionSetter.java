@@ -20,7 +20,7 @@ public class SectionSetter implements Listener {
     private Location loc1;
     private Location loc2;
 
-    private HashMap<String, SectionData> data = new HashMap<>();
+    public static HashMap<String, SectionData> data = new HashMap<>();
 
 
 
@@ -44,7 +44,7 @@ public class SectionSetter implements Listener {
                         }
                     case "show" :
                         if(data.size() > 0) {
-                            data.forEach((string, sectionData) -> sender.sendMessage("섹션 " + string + "의 첫번째 위치 ("+ (int) sectionData.getPos1().getX() + ", " + (int) sectionData.getPos1().getY() + ", " + (int) sectionData.getPos1().getZ() + ") 와 두번째 위치 ("+ (int) sectionData.getPos1().getX() + ", " + (int) sectionData.getPos1().getY() + ", " + (int) sectionData.getPos1().getZ() + ")"));
+                            data.forEach((string, sectionData) -> sender.sendMessage("섹션 " + string + "의 첫번째 위치 ("+ (int) sectionData.getPos1().getX() + ", " + (int) sectionData.getPos1().getY() + ", " + (int) sectionData.getPos1().getZ() + ") 와 두번째 위치 ("+ (int) sectionData.getPos2().getX() + ", " + (int) sectionData.getPos2().getY() + ", " + (int) sectionData.getPos2().getZ() + ")"));
                         }else {
                             sender.sendMessage("아직 section가 지정되어있지 않습니다");
                         }

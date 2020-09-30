@@ -36,7 +36,7 @@ public class Vent implements Listener {
         if(/* data.getRole() == Role.Imposter && */ p.getWorld().getBlockAt((int) p.getLocation().getX(), (int) p.getLocation().getY() - 1, (int) p.getLocation().getZ()).getType() == Material.IRON_TRAPDOOR) {
             p.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, 9999, 10, false, false), false);
             isInVent.put(p.getUniqueId(), true);
-            ItemStack stack = new ItemStack(Material.STAINED_GLASS_PANE, 1, DyeColor.YELLOW.getDyeData());
+            ItemStack stack = new ItemStack(Material.YELLOW_STAINED_GLASS_PANE, 1);
             ItemMeta meta = stack.getItemMeta();
             meta.setDisplayName(" ");
             stack.setItemMeta(meta);

@@ -9,8 +9,7 @@ import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
-import plugin.game.Direction;
-import plugin.game.Game;
+import plugin.game.GameType;
 
 import java.util.*;
 
@@ -24,7 +23,7 @@ public class LocationSetter implements Listener {
     public static Location crew;
     public static String direction;
     public static Location imposter;
-    public static HashMap<Game, Location> games = new HashMap<>();
+    public static HashMap<GameType, Location> potal = new HashMap<>();
 
     @EventHandler
     public void onChat(AsyncPlayerChatEvent e) {
@@ -78,10 +77,14 @@ public class LocationSetter implements Listener {
                             this.imposter = previous;
                             this.direction = args[1];
                             sender.sendMessage("위치(x : " + previous.getX() + ", y : " + previous.getY() + ", z : " + previous.getZ() + ") 가 imposter의 소개장소로 지정되었습니다");
+                        } else if (args[0].equals("potal")) {
+                            GameType type = GameType.parseGameType(args[1]);
+                            potal.put(type, previous);
                         }
                     } catch (Exception ex) {
                         if(ex instanceof NumberFormatException) sender.sendMessage("§c숫자를 입력해 주세요");
-                        if(ex instanceof ArrayIndexOutOfBoundsException) sender.sendMessage("§c그 위치에 값이 저장되어 있지 않습니다");
+                        else if(ex instanceof ArrayIndexOutOfBoundsException) sender.sendMessage("§c그 위치에 값이 저장되어 있지 않습니다");
+                        else if(ex.getMessage().equals("unknown gameType")) sender.sendMessage("§c알 수 없는 게임입니다");
                     }
                 }
                 e.setCancelled(true);
@@ -92,7 +95,7 @@ public class LocationSetter implements Listener {
     @EventHandler
     public void onClick(PlayerInteractEvent e) {
         Player p = e.getPlayer();
-        if(p.getInventory().getItemInMainHand() != null && p.getInventory().getItemInMainHand().getItemMeta().getDisplayName() != null) {
+        if(p.getInventory().getItemInMainHand().getItemMeta() != null && !p.getInventory().getItemInMainHand().getItemMeta().getDisplayName().equals(" ")) {
             if (e.getHand() == EquipmentSlot.HAND) {
                 if (e.getAction() == Action.RIGHT_CLICK_BLOCK) {
                     if (p.getInventory().getItemInMainHand().getItemMeta().getDisplayName().equals("§e위치 설정")) {

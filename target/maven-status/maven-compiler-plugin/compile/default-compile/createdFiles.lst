@@ -1,4 +1,5 @@
 plugin\main\TestCommands.class
+plugin\tools\SectionData$1.class
 plugin\game\WaitingRoom.class
 plugin\main\MamongUs.class
 plugin\environment\Events.class
@@ -13,6 +14,5 @@ plugin\main\ItemBuild.class
 plugin\tools\Setter$1.class
 plugin\game\Direction.class
 plugin\game\Game$1.class
-plugin\tools\SectionSetter$Section.class
-plugin\tools\NPCSetter.class
+plugin\tools\SectionData.class
 plugin\tools\Setter.class
