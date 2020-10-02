@@ -6,6 +6,7 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
 import plugin.main.ItemBuild;
 import plugin.tools.LocationSetter;
+import plugin.tools.data.Direction;
 
 import java.util.ArrayList;
 import java.util.HashMap;

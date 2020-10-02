@@ -1,6 +1,4 @@
-package plugin.environment;
-
-import plugin.main.Role;
+package plugin.tools.data;
 
 public class PlayerData {
 

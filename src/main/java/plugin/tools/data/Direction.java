@@ -1,4 +1,4 @@
-package plugin.game;
+package plugin.tools.data;
 
 public enum Direction {
 

@@ -1,8 +1,9 @@
 package plugin.main;
 
 import org.bukkit.Bukkit;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
-import plugin.environment.PlayerData;
+import plugin.tools.data.PlayerData;
 import plugin.environment.Vent;
 import plugin.tools.LocationSetter;
 import plugin.tools.Setter;
@@ -20,6 +21,10 @@ public final class MamongUs extends JavaPlugin {
         Bukkit.getPluginManager().registerEvents(new LocationSetter(), this);
         Bukkit.getPluginManager().registerEvents(new Setter(), this);
         this.getDescription().getCommands().keySet().forEach(l -> getCommand(l).setExecutor(new TestCommands()));
+    }
+
+    public static Plugin getPlugin() {
+        return Bukkit.getPluginManager().getPlugin("MamongUs");
     }
 
     @Override

@@ -9,7 +9,7 @@ import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
-import plugin.game.GameType;
+import plugin.tools.data.GameType;
 
 import java.util.*;
 
@@ -23,7 +23,7 @@ public class LocationSetter implements Listener {
     public static Location crew;
     public static String direction;
     public static Location imposter;
-    public static HashMap<GameType, Location> potal = new HashMap<>();
+    public static HashMap<Location, GameType> potal = new HashMap<>();
 
     @EventHandler
     public void onChat(AsyncPlayerChatEvent e) {
@@ -79,7 +79,7 @@ public class LocationSetter implements Listener {
                             sender.sendMessage("위치(x : " + previous.getX() + ", y : " + previous.getY() + ", z : " + previous.getZ() + ") 가 imposter의 소개장소로 지정되었습니다");
                         } else if (args[0].equals("potal")) {
                             GameType type = GameType.parseGameType(args[1]);
-                            potal.put(type, previous);
+                            potal.put(previous, type);
                         }
                     } catch (Exception ex) {
                         if(ex instanceof NumberFormatException) sender.sendMessage("§c숫자를 입력해 주세요");

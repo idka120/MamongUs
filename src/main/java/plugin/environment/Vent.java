@@ -15,7 +15,7 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.EulerAngle;
 import plugin.main.MamongUs;
-import plugin.main.Role;
+import plugin.tools.data.PlayerData;
 
 import java.util.ArrayList;
 import java.util.HashMap;
