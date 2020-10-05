@@ -1,5 +1,7 @@
 package plugin.tools.data;
 
+import plugin.tools.data.role.Role;
+
 public class PlayerData {
 
     private Role role;

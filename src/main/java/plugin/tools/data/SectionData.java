@@ -5,11 +5,10 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
 import plugin.main.MamongUs;
 
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.Queue;
+import java.util.*;
 
 public class SectionData {
 
@@ -19,20 +18,22 @@ public class SectionData {
     private Location pos1;
     private Location pos2;
 
-    private boolean b;
-    private int i;
     private final HashMap<Integer, HashMap<Integer, Block>> mapOne = new HashMap<>();
     private final HashMap<Integer, Block> mapTwo = new HashMap<>();
 
-    private Queue<Block> block = new LinkedList<>();
-    private Queue<Integer> X = new LinkedList<>();
-    private Queue<Integer> Y = new LinkedList<>();
-    private Queue<Integer> Z = new LinkedList<>();
+    private final HashMap<String, Boolean> isEndend = new HashMap<>();
+    private final HashMap<String, Boolean> b = new HashMap<>();
+    private final HashMap<String, Integer> i = new HashMap<>();
+
+    private final Queue<Block> block = new LinkedList<>();
+    private final Queue<Integer> X = new LinkedList<>();
+    private final Queue<Integer> Y = new LinkedList<>();
+    private final Queue<Integer> Z = new LinkedList<>();
 
     //곧 삭제될 큐
-    private Queue<Integer> sX = new LinkedList<>();
-    private Queue<Integer> sY = new LinkedList<>();
-    private Queue<Integer> sZ = new LinkedList<>();
+    private final Queue<Integer> sX = new LinkedList<>();
+    private final Queue<Integer> sY = new LinkedList<>();
+    private final Queue<Integer> sZ = new LinkedList<>();
 
     public SectionData(Location pos1, Location pos2) {
         this.pos1 = pos1;
@@ -70,16 +71,11 @@ public class SectionData {
                         }
                     }
                 }
+                isSaving = false;
             }catch (InterruptedException e) {
-
+                System.out.println("오류발생!");
             }
         });
-        Bukkit.getScheduler().runTask(MamongUs.getPlugin(), () -> {
-            if(sX.size() != 0) {
-                pos1.getWorld().getBlockAt(sX.poll(), sY.poll(), sZ.poll()).setType(Material.ORANGE_STAINED_GLASS);
-            }
-        });
-        isSaving = false;
     }
 
     private void load(Location loc) {
@@ -101,141 +97,288 @@ public class SectionData {
                         }
                     }
                 });
-                Bukkit.getScheduler().runTask(MamongUs.getPlugin(), () -> {
-                    if (block.size() != 0) {
+                Bukkit.getScheduler().runTaskTimer(MamongUs.getPlugin(), () -> {
+                    while(block.size() > 0) {
                         //loc.getWorld().getBlockAt(X.peek(), Y.peek(), Z.peek()).setType(block.peek().getType());
                         //loc.getWorld().getBlockAt(X.peek(), Y.peek(), Z.peek()).setBlockData(block.poll().getBlockData());
                         loc.getWorld().getBlockAt(X.poll(), Y.poll(), Z.poll()).setType(Material.ORANGE_STAINED_GLASS, false);
                     }
-                });
+                    while(sX.size() > 0) {
+                        loc.getWorld().getBlockAt(sX.poll(), sY.poll(), sZ.poll()).setType(Material.ORANGE_STAINED_GLASS, false);
+                    }
+                },1, 0);
                 break;
             }
         }
     }
 
     public int getBlockCount() {
-        while (true) {
-            if(!isSaving) {
-                i = 0;
-                Bukkit.getScheduler().runTaskAsynchronously(MamongUs.getPlugin(), () -> {
+        String code = Code.getCode(4, false);
+        Bukkit.getScheduler().runTaskAsynchronously(MamongUs.getPlugin(), () -> {
+            while (true) {
+                if(!isSaving) {
+                    int I = 0;
                     for (Integer x : blocks.keySet())
                         for (Integer y : blocks.get(x).keySet())
-                            for (Integer z : blocks.get(x).get(y).keySet()) {
-                                i += 1;
-                            }
-                });
-                break;
+                            for (Integer z : blocks.get(x).get(y).keySet())
+                                I += 1;
+                            i.put(code, I);
+                            break;
+                }
             }
-        }
-        return i;
+        });
+        Code.remove(code);
+        int result = i.get(code);
+        i.remove(code);
+        return result;
     }
 
     public boolean isFilled(Material type) {
+        String code = Code.getCode(4, false);
+        Bukkit.getScheduler().runTaskAsynchronously(MamongUs.getPlugin(), () -> {
         while(true) {
             if(!isSaving) {
-                Bukkit.getScheduler().runTaskAsynchronously(MamongUs.getPlugin(), () -> {
-                    b = true;
+                b.put(code, true);
+                for (Integer x : blocks.keySet())
+                    for (Integer y : blocks.get(x).keySet())
+                        for (Integer z : blocks.get(x).get(y).keySet())
+                            if (blocks.get(x).get(y).get(z).getType() != type) b.put(code, false);
+                            break;
+            }
+            }
+        });
+        Code.remove(code);
+        boolean result = b.get(code);
+        b.remove(code);
+        return result;
+    }
+
+    public boolean isFilled(Material type, Location loc) {
+        String code = Code.getCode(4, false);
+        Bukkit.getScheduler().runTaskAsynchronously(MamongUs.getPlugin(), () -> {
+            while(true) {
+                if(!isSaving) {
+                    b.put(code, true);
                     for (Integer x : blocks.keySet())
                         for (Integer y : blocks.get(x).keySet())
-                            for (Integer z : blocks.get(x).get(y).keySet()) {
-                                if (blocks.get(x).get(y).get(z).getType() != type) b = false;
-                            }
-                });
-                break;
+                            for (Integer z : blocks.get(x).get(y).keySet())
+                                if(loc.getWorld().getBlockAt(loc.add(x, y, z)).getType() != type) b.put(code, false);
+                    break;
+                }
             }
-        }
-        return b;
+        });
+        Code.remove(code);
+        boolean result = b.get(code);
+        b.remove(code);
+        return result;
     }
 
     public boolean isFilled(Block b) {
-        while (true) {
-            if(isSaving) {
-                Bukkit.getScheduler().runTaskAsynchronously(MamongUs.getPlugin(), () -> {
-                    this.b = true;
+        String code = Code.getCode(4, false);
+        Bukkit.getScheduler().runTaskAsynchronously(MamongUs.getPlugin(), () -> {
+            while(true) {
+                if(!isSaving) {
+                    this.b.put(code, true);
                     for (Integer x : blocks.keySet())
                         for (Integer y : blocks.get(x).keySet())
                             for (Integer z : blocks.get(x).get(y).keySet())
-                                if (blocks.get(x).get(y).get(z) != b) this.b = false;
-                });
-                break;
+                                if (blocks.get(x).get(y).get(z) != b) this.b.put(code, false);
+                    break;
+                }
             }
-        }
-        return this.b;
+        });
+        Code.remove(code);
+        boolean result = this.b.get(code);
+        this.b.remove(code);
+        return result;
     }
 
-    public boolean contain(Material type) {
-        while (true) {
-            if(!isSaving) {
-                Bukkit.getScheduler().runTaskAsynchronously(MamongUs.getPlugin(), () -> {
-                    this.b = false;
+    public boolean isFilled(Block b, Location loc) {
+        String code = Code.getCode(4, false);
+        Bukkit.getScheduler().runTaskAsynchronously(MamongUs.getPlugin(), () -> {
+            while(true) {
+                if(!isSaving) {
+                    this.b.put(code, true);
                     for (Integer x : blocks.keySet())
                         for (Integer y : blocks.get(x).keySet())
                             for (Integer z : blocks.get(x).get(y).keySet())
-                                if (blocks.get(x).get(y).get(z).getType() == type) b = true;
-                });
-                break;
+                                if(loc.getWorld().getBlockAt(loc.add(x, y, z)) != b) this.b.put(code, false);
+                    break;
+                }
             }
-        }
-        return b;
+        });
+        Code.remove(code);
+        boolean result = this.b.get(code);
+        this.b.remove(code);
+        return result;
+    }
+
+    public boolean contains(Material type) {
+        String code = Code.getCode(4, false);
+        Bukkit.getScheduler().runTaskAsynchronously(MamongUs.getPlugin(), () -> {
+            while(true) {
+                if(!isSaving) {
+                    b.put(code, false);
+                    for (Integer x : blocks.keySet())
+                        for (Integer y : blocks.get(x).keySet())
+                            for (Integer z : blocks.get(x).get(y).keySet())
+                                if (blocks.get(x).get(y).get(z).getType() == type) b.put(code, true);
+                    break;
+                }
+            }
+        });
+        Code.remove(code);
+        boolean result = b.get(code);
+        b.remove(code);
+        return result;
+    }
+
+    public boolean contains(Material type, Location loc) {
+        String code = Code.getCode(4, false);
+        Bukkit.getScheduler().runTaskAsynchronously(MamongUs.getPlugin(), () -> {
+            while(true) {
+                if(!isSaving) {
+                    b.put(code, false);
+                    for (Integer x : blocks.keySet())
+                        for (Integer y : blocks.get(x).keySet())
+                            for (Integer z : blocks.get(x).get(y).keySet())
+                                if(loc.getWorld().getBlockAt(loc.add(x, y, z)).getType() == type) b.put(code, true);
+                    break;
+                }
+            }
+        });
+        Code.remove(code);
+        boolean result = b.get(code);
+        b.remove(code);
+        return result;
     }
 
     public boolean contains(Block b) {
-        while (true) {
-            if(!isSaving) {
-                Bukkit.getScheduler().runTaskAsynchronously(MamongUs.getPlugin(), () -> {
-                    this.b = false;
+        String code = Code.getCode(4, false);
+        Bukkit.getScheduler().runTaskAsynchronously(MamongUs.getPlugin(), () -> {
+            while(true) {
+                if(!isSaving) {
+                    this.b.put(code, false);
                     for (Integer x : blocks.keySet())
                         for (Integer y : blocks.get(x).keySet())
                             for (Integer z : blocks.get(x).get(y).keySet())
-                                if (blocks.get(x).get(y).get(z) == b)
-                                    this.b = true;
-                });
-                break;
+                                if (blocks.get(x).get(y).get(z) == b) this.b.put(code, true );
+                    break;
+                }
             }
-        }
-        return this.b;
+        });
+        Code.remove(code);
+        boolean result = this.b.get(code);
+        this.b.remove(code);
+        return result;
+    }
+
+    public boolean contains(Block b, Location loc) {
+        String code = Code.getCode(4, false);
+        Bukkit.getScheduler().runTaskAsynchronously(MamongUs.getPlugin(), () -> {
+            while(true) {
+                if(!isSaving) {
+                    this.b.put(code, false);
+                    for (Integer x : blocks.keySet())
+                        for (Integer y : blocks.get(x).keySet())
+                            for (Integer z : blocks.get(x).get(y).keySet())
+                                if(loc.getWorld().getBlockAt(loc.add(x, y, z)) == b) this.b.put(code, true);
+                    break;
+                }
+            }
+        });
+        Code.remove(code);
+        boolean result = this.b.get(code);
+        this.b.remove(code);
+        return result;
     }
 
     public boolean isVoid() {
-        while (true) {
-            if(!isSaving) {
-                Bukkit.getScheduler().runTaskAsynchronously(MamongUs.getPlugin(), () -> {
-                    b = true;
+        String code = Code.getCode(4, false);
+        Bukkit.getScheduler().runTaskAsynchronously(MamongUs.getPlugin(), () -> {
+            while(true) {
+                if(!isSaving) {
+                    this.b.put(code, true);
                     for (Integer x : blocks.keySet())
                         for (Integer y : blocks.get(x).keySet())
                             for (Integer z : blocks.get(x).get(y).keySet())
-                                if (blocks.get(x).get(y).get(z).getType() != Material.VOID_AIR)
-                                    b = false;
-                });
-                break;
+                                if (blocks.get(x).get(y).get(z).getType() != Material.VOID_AIR) this.b.put(code, false);
+                    break;
+                }
             }
-        }
-        return b;
+        });
+        Code.remove(code);
+        boolean result = this.b.get(code);
+        b.remove(code);
+        return result;
+    }
+
+    public boolean isVoid(Location loc) {
+        String code = Code.getCode(4, false);
+        Bukkit.getScheduler().runTaskAsynchronously(MamongUs.getPlugin(), () -> {
+            while(true) {
+                if(!isSaving) {
+                    this.b.put(code, true);
+                    for (Integer x : blocks.keySet())
+                        for (Integer y : blocks.get(x).keySet())
+                            for (Integer z : blocks.get(x).get(y).keySet())
+                                if (loc.getWorld().getBlockAt(loc.add(x, y, z)).getType() != Material.VOID_AIR) this.b.put(code, false);
+                    break;
+                }
+            }
+        });
+        Code.remove(code);
+        boolean result = this.b.get(code);
+        b.remove(code);
+        return result;
     }
 
     public boolean isAir() {
-        while (true) {
-            if(!isSaving) {
-                Bukkit.getScheduler().runTaskAsynchronously(MamongUs.getPlugin(), () -> {
-                    b = true;
+        String code = Code.getCode(4, false);
+        Bukkit.getScheduler().runTaskAsynchronously(MamongUs.getPlugin(), () -> {
+            while(true) {
+                if(!isSaving) {
+                    this.b.put(code, true);
                     for (Integer x : blocks.keySet())
                         for (Integer y : blocks.get(x).keySet())
                             for (Integer z : blocks.get(x).get(y).keySet())
-                                if (blocks.get(x).get(y).get(z).getType() != Material.AIR && blocks.get(x).get(y).get(z).getType() != Material.CAVE_AIR)
-                                    this.b = false;
-                });
-                break;
+                                if (blocks.get(x).get(y).get(z).getType() != Material.AIR && blocks.get(x).get(y).get(z).getType() != Material.CAVE_AIR) this.b.put(code, false);
+                    break;
+                }
             }
-        }
-        return b;
+        });
+        Code.remove(code);
+        boolean result = this.b.get(code);
+        i.remove(code);
+        return result;
+    }
+
+    public boolean isAir(Location loc) {
+        String code = Code.getCode(4, false);
+        Bukkit.getScheduler().runTaskAsynchronously(MamongUs.getPlugin(), () -> {
+            while(true) {
+                if(!isSaving) {
+                    this.b.put(code, true);
+                    for (Integer x : blocks.keySet())
+                        for (Integer y : blocks.get(x).keySet())
+                            for (Integer z : blocks.get(x).get(y).keySet())
+                                if (loc.getWorld().getBlockAt(loc.add(x, y, z)).getType() != Material.CAVE_AIR && loc.getWorld().getBlockAt(loc.add(x, y, z)).getType() != Material.AIR) this.b.put(code, false);
+                    break;
+                }
+            }
+        });
+        Code.remove(code);
+        boolean result = this.b.get(code);
+        i.remove(code);
+        return result;
     }
 
     public void show(LivingEntity sender, Location loc) {
-        while (true) {
+        Bukkit.getScheduler().runTask(MamongUs.getPlugin(),() -> {
+            while (true) {
             System.out.println("while탐지");
             if(!isSaving) {
                 System.out.println("if 탐지");
-                Bukkit.getScheduler().runTask(MamongUs.getPlugin(),() -> {
                     System.out.println("스케듈려 탐지");
                     for (Integer x : blocks.keySet()) {
                         System.out.println("x값 불러옴(" + x + ")");
@@ -247,10 +390,32 @@ public class SectionData {
                             }
                         }
                     }
-                });
                 break;
+                }
             }
-        }
+        });
+    }
+
+    public void show(Player sender) {
+        Bukkit.getScheduler().runTask(MamongUs.getPlugin(), () -> {
+            try {
+                while (true) {
+                    if (!isSaving) {
+                        int i = 0;
+                        for (Integer x : blocks.keySet()) {
+                            for (Integer y : blocks.get(x).keySet()) {
+                                for (Integer z : blocks.get(x).get(y).keySet()) {
+                                    sender.sendTitle("§a맵 생성중...", "§a" + i + "% 완료", 10, 10, 10);
+                                }
+                            }
+                        }
+                        break;
+                    }
+                }
+            }catch (Exception e) {
+                sender.sendTitle("§e§l경고", "§c맵 생성중 오류발생!", 10, 10, 10);
+            }
+        });
     }
 
     public void load(Location loc, boolean force, String direction, LivingEntity sender) {
@@ -263,37 +428,37 @@ public class SectionData {
                         for (int i = 0; ; i++) {
                             switch (dir) {
                                 case SOUTH:
-                                    if (isAir()) {
+                                    if (isAir(loc)) {
                                         load(loc.add(0, 0, (Math.abs(pos1.getBlockZ() - pos2.getBlockZ()) + 1) * i));
                                         break loop;
                                     }
                                     break;
                                 case NORTH:
-                                    if (isFilled(Material.AIR)) {
+                                    if (isAir(loc)) {
                                         load(loc.add(0, 0, (-(Math.abs(pos1.getBlockZ() - pos2.getBlockZ()) + 1)) * i));
                                         break loop;
                                     }
                                     break;
                                 case EAST:
-                                    if (isFilled(Material.AIR)) {
+                                    if (isAir(loc)) {
                                         load(loc.add((Math.abs(pos1.getBlockX() - pos2.getBlockX()) + 1) * i, 0, 0));
                                         break loop;
                                     }
                                     break;
                                 case WEST:
-                                    if (isFilled(Material.AIR)) {
+                                    if (isAir(loc)) {
                                         load(loc.add((-(Math.abs(pos1.getBlockX() - pos2.getBlockX()) + 1)) * i, 0, 0));
                                         break loop;
                                     }
                                     break;
                                 case UP:
-                                    if (isFilled(Material.AIR)) {
+                                    if (isAir(loc)) {
                                         load(loc.add((Math.abs(pos1.getBlockY() - pos2.getBlockY()) + 1) * i, 0, 0));
                                         break loop;
                                     }
                                     break;
                                 case DOWN:
-                                    if (isFilled(Material.AIR)) {
+                                    if (isAir(loc)) {
                                         load(loc.add(-(Math.abs(pos1.getBlockY() - pos2.getBlockY()) + 1) * i, 0, 0));
                                         break loop;
                                     }

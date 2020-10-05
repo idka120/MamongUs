@@ -7,23 +7,52 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.meta.ItemMeta;
-import plugin.tools.data.GameType;
-import plugin.tools.data.RoomData;
+import plugin.tools.SectionSetter;
+import plugin.tools.data.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
+@SuppressWarnings("ALL")
 public class Room implements Listener {
 
     public static final HashMap<String, RoomData> data = new HashMap<>();
-    public static final List<String> codes = new ArrayList<>();
+    protected static final List<String> codes = new ArrayList<>();
     private static String[] l = {"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"};
 
+    public static boolean controller;
     private static final Inventory setting = Bukkit.createInventory(null, 27, "§e방 생성");
 
+    private static void stop() throws InterruptedException {
+        throw new InterruptedException();
+    }
+
+    public static void thread() {
+        new Thread(() -> {
+            for (int x = 1;; x++) {
+                for (int y = 1; y <= 5; y++) {
+                    try {
+                        stop();
+                    }catch (InterruptedException ex) {
+                        try {
+                            while (!controller) {
+                                Thread.sleep(100000);
+                            }
+                        }catch (InterruptedException e) { }
+                    }
+                }
+            }
+        }, "StructerManager").start();
+    }
+
     public static void createRoom(UUID owner) {
+
+    }
+
+    private void create(UUID owner, String name) {
+        if(SectionSetter.data.get(name) == null) return;
 
     }
 
@@ -59,18 +88,15 @@ public class Room implements Listener {
                         e.setCancelled(true);
                         break;
                     case BARRIER:
-                        String code = l[(int) (Math.random() * l.length)]
-                            + l[(int) (Math.random() * l.length)]
-                            + l[(int) (Math.random() * l.length)]
-                            + l[(int) (Math.random() * l.length)]
-                            + l[(int) (Math.random() * l.length)]
-                            + l[(int) (Math.random() * l.length)];
+                        String code = Code.getCode(6, false);
                         codes.add(code);
-                        Room.data.put(code, new RoomData(e.getCurrentItem().getAmount(), e.getWhoClicked().getUniqueId(), code, type.getImposterCount()));
+                        Room.data.put(code, new RoomData(e.getInventory().getItem(16).getAmount(), e.getWhoClicked().getUniqueId(), code, type.getImposterCount()));
+
                         e.setCancelled(true);
                         break;
                     default:
                         e.setCancelled(true);
+                        break;
                 }
             }
         }

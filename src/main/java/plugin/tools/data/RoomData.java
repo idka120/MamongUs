@@ -12,6 +12,9 @@ public class    RoomData {
     //변하는 방정보
     private int nowPlayer;
     private final List<UUID> playerList = new ArrayList<>();
+    private final List<UUID> survivals = new ArrayList<>();
+    private final List<UUID> imposters = new ArrayList<>();
+    private boolean showTask;
 
     //영구적 방정보
     private final int maxPlayer;
@@ -24,6 +27,15 @@ public class    RoomData {
         this.owner = owner;
         this.code = code;
         this.imposterCount = imposterCount;
+    }
+
+    public boolean eject(UUID player) {
+        if(imposters.contains(player)) {
+            imposters.remove(player);
+            return true;
+        }
+        survivals.remove(player);
+        return false;
     }
 
     public RoomData join(UUID uuid) {

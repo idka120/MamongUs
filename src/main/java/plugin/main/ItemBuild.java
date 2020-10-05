@@ -39,7 +39,7 @@ public class ItemBuild {
         return this;
     }
 
-    public ItemBuild setCustomModelData(int data) {
+    public ItemBuild setCustomModelData(Integer data) {
         meta.setCustomModelData(data);
         stack.setItemMeta(meta);
         return this;
