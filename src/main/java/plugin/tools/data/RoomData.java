@@ -2,6 +2,7 @@ package plugin.tools.data;
 
 import org.bukkit.Bukkit;
 import plugin.environment.lobby.Room;
+import plugin.tools.SectionSetter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,12 +22,17 @@ public class    RoomData {
     private final UUID owner;
     private final String code;
     private final int imposterCount;
+    private final int minPlayer;
+    private final SectionData data;
 
-    public RoomData(int maxPlayer, UUID owner, String code, int imposterCount) {
-        this.maxPlayer = maxPlayer;
+    public RoomData(GameType type, UUID owner, String code, SectionData data) {
+        this.maxPlayer = type.getMaxPlayer();
         this.owner = owner;
         this.code = code;
-        this.imposterCount = imposterCount;
+        this.imposterCount = type.getImposterCount();
+        this.data = data;
+        minPlayer = type.getMinPlayer();
+        data.load(data.getPos2(), false, SectionSetter.dir.get(type));
     }
 
     public boolean eject(UUID player) {

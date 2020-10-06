@@ -20,40 +20,13 @@ public class Room implements Listener {
 
     public static final HashMap<String, RoomData> data = new HashMap<>();
     protected static final List<String> codes = new ArrayList<>();
-    private static String[] l = {"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"};
 
     public static boolean controller;
     private static final Inventory setting = Bukkit.createInventory(null, 27, "§e방 생성");
 
-    private static void stop() throws InterruptedException {
-        throw new InterruptedException();
-    }
-
-    public static void thread() {
-        new Thread(() -> {
-            for (int x = 1;; x++) {
-                for (int y = 1; y <= 5; y++) {
-                    try {
-                        stop();
-                    }catch (InterruptedException ex) {
-                        try {
-                            while (!controller) {
-                                Thread.sleep(100000);
-                            }
-                        }catch (InterruptedException e) { }
-                    }
-                }
-            }
-        }, "StructerManager").start();
-    }
-
-    public static void createRoom(UUID owner) {
-
-    }
-
-    private void create(UUID owner, String name) {
-        if(SectionSetter.data.get(name) == null) return;
-
+    public static void createRoom(UUID owner, GameType type) {
+        SectionData data = SectionSetter.data.get(SectionSetter.what.get(type));
+        Room.data.put(Bukkit.getPlayer(owner).getName(), new RoomData(type, owner, Code.getCode(6), data));
     }
 
     @EventHandler
@@ -90,7 +63,6 @@ public class Room implements Listener {
                     case BARRIER:
                         String code = Code.getCode(6, false);
                         codes.add(code);
-                        Room.data.put(code, new RoomData(e.getInventory().getItem(16).getAmount(), e.getWhoClicked().getUniqueId(), code, type.getImposterCount()));
 
                         e.setCancelled(true);
                         break;

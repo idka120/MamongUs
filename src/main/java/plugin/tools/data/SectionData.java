@@ -10,9 +10,10 @@ import plugin.main.MamongUs;
 
 import java.util.*;
 
+@SuppressWarnings("ALL")
 public class SectionData {
 
-    public static boolean isSaving = true;
+    private static boolean isSaving = true;
 
     private final HashMap<Integer, HashMap<Integer, HashMap<Integer, Block>>> blocks = new HashMap<>();
     private Location pos1;
@@ -21,7 +22,6 @@ public class SectionData {
     private final HashMap<Integer, HashMap<Integer, Block>> mapOne = new HashMap<>();
     private final HashMap<Integer, Block> mapTwo = new HashMap<>();
 
-    private final HashMap<String, Boolean> isEndend = new HashMap<>();
     private final HashMap<String, Boolean> b = new HashMap<>();
     private final HashMap<String, Integer> i = new HashMap<>();
 
@@ -34,6 +34,9 @@ public class SectionData {
     private final Queue<Integer> sX = new LinkedList<>();
     private final Queue<Integer> sY = new LinkedList<>();
     private final Queue<Integer> sZ = new LinkedList<>();
+
+    public boolean controller;
+    public String direction;
 
     public SectionData(Location pos1, Location pos2) {
         this.pos1 = pos1;
@@ -424,6 +427,84 @@ public class SectionData {
                 try {
                     Direction dir = Direction.toDirection(direction);
                     if (!force) {
+                        loop: for (int i = 0;; i++) {
+                            loopY: for (int y = 0; y <= 5; y++) {
+                                switch (dir) {
+                                    case SOUTH:
+                                        if (isAir(loc)) {
+                                            load(loc.add(0, Math.abs(pos1.getBlockY() - pos2.getBlockY()) * y, (Math.abs(pos1.getBlockZ() - pos2.getBlockZ()) + 1) * i));
+                                            break loop;
+                                        }
+                                        break;
+                                    case NORTH:
+                                        if (isAir(loc)) {
+                                            load(loc.add(0, Math.abs(pos1.getBlockY() - pos2.getBlockY()) * y, (-(Math.abs(pos1.getBlockZ() - pos2.getBlockZ()) + 1)) * i));
+                                            break loop;
+                                        }
+                                        break;
+                                    case EAST:
+                                        if (isAir(loc)) {
+                                            load(loc.add((Math.abs(pos1.getBlockX() - pos2.getBlockX()) + 1) * i, Math.abs(pos1.getBlockY() - pos2.getBlockY()) * y, 0));
+                                            break loop;
+                                        }
+                                        break;
+                                    case WEST:
+                                        if (isAir(loc)) {
+                                            load(loc.add((-(Math.abs(pos1.getBlockX() - pos2.getBlockX()) + 1)) * i, Math.abs(pos1.getBlockY() - pos2.getBlockY()) * y, 0));
+                                            break loop;
+                                        }
+                                        break;
+                                    case UP:
+                                        if (isAir(loc)) {
+                                            load(loc.add(0, (Math.abs(pos1.getBlockY() - pos2.getBlockY()) + 1) * i, 0));
+                                            break loop;
+                                        }
+                                        break;
+                                    case DOWN:
+                                        if (isAir(loc)) {
+                                            load(loc.add(0, -(Math.abs(pos1.getBlockY() - pos2.getBlockY()) + 1) * i, 0));
+                                            break loop;
+                                        }
+                                        break;
+                                }
+                            }
+                        }
+                    } else {
+                        switch (dir) {
+                            case SOUTH:
+                                load(loc.add(0, 0, Math.abs(pos1.getBlockZ() - pos2.getBlockZ()) + 1));
+                                break;
+                            case NORTH:
+                                load(loc.add(0, 0, -(Math.abs(pos1.getBlockZ() - pos2.getBlockZ()) + 1)));
+                                break;
+                            case EAST:
+                                load(loc.add(Math.abs(pos1.getBlockX() - pos2.getBlockX()) + 1, 0, 0));
+                                break;
+                            case WEST:
+                                load(loc.add(-(Math.abs(pos1.getBlockX() - pos2.getBlockX()) + 1), 0, 0));
+                                break;
+                            case UP:
+                                load(loc.add(0, Math.abs(pos1.getBlockY() - pos2.getBlockY()) + 1, 0));
+                                break;
+                            case DOWN:
+                                load(loc.add(0, -(Math.abs(pos1.getBlockY() - pos2.getBlockY()) + 1), 0));
+                                break;
+                        }
+                    }
+                } catch (IllegalArgumentException ex) {
+                    sender.sendMessage("§c알 수 없는 방향입니다");
+                }
+                break;
+            }
+        }
+    }
+
+    public void load(Location loc, boolean force, String direction) {
+        while (true) {
+            if (!isSaving) {
+                try {
+                    Direction dir = Direction.toDirection(direction);
+                    if (!force) {
                         loop:
                         for (int i = 0; ; i++) {
                             switch (dir) {
@@ -487,9 +568,7 @@ public class SectionData {
                                 break;
                         }
                     }
-                } catch (IllegalArgumentException ex) {
-                    sender.sendMessage("§c알 수 없는 방향입니다");
-                }
+                } catch (IllegalArgumentException ex) { }
                 break;
             }
         }

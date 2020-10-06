@@ -9,6 +9,8 @@ import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
+import plugin.tools.data.Direction;
+import plugin.tools.data.GameType;
 import plugin.tools.data.SectionData;
 
 import java.util.HashMap;
@@ -22,7 +24,8 @@ public class SectionSetter implements Listener {
 
     public static HashMap<String, SectionData> data = new HashMap<>();
 
-
+    public static HashMap<GameType, String> what = new HashMap<>();
+    public static HashMap<GameType, String> dir = new HashMap<>();
 
     @EventHandler
     public void onChat(AsyncPlayerChatEvent e) {
@@ -61,7 +64,10 @@ public class SectionSetter implements Listener {
             }else if(args.length == 3) {
                 switch (args[0]) {
                     case "autoLoad":
-
+                        GameType type = GameType.parseGameType(args[0]);
+                        String name = args[1];
+                        what.put(type, name);
+                        dir.put(type, args[2]);
                 }
             }
         }
