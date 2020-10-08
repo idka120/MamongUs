@@ -82,37 +82,46 @@ public class SectionData {
     }
 
     private void load(Location loc) {
-        while (true) {
-            if(!isSaving) {
-                Bukkit.getScheduler().runTaskAsynchronously(MamongUs.getPlugin(), () -> {
-                    for (Integer x : blocks.keySet()) {
-                        for (Integer y: blocks.get(x).keySet()) {
-                            for (Integer z: blocks.get(x).get(y).keySet()) {
-                                try {
-                                    this.block.add(blocks.get(x).get(y).get(z));
-                                    X.add(loc.getBlockX() + x);
-                                    Y.add(loc.getBlockY() + y);
-                                    Z.add(loc.getBlockZ() + z);
-                                    Thread.sleep(1);
-                                } catch (InterruptedException e) {
+        new Thread(() -> {
+            loop : while (true) {
+                System.out.println("while 탐지(load)");
+                if (!isSaving) {
+                    System.out.println("if 탐지(load)");
+                    Bukkit.getScheduler().runTaskAsynchronously(MamongUs.getPlugin(), () -> {
+                        System.out.println("스케듈러 탐지(load)");
+                        for (Integer x : blocks.keySet()) {
+                            System.out.println("x값 불러옴(load : " + x + ")");
+                            for (Integer y : blocks.get(x).keySet()) {
+                                System.out.println("y값 불러옴(load : " + y + ")");
+                                for (Integer z : blocks.get(x).get(y).keySet()) {
+                                    System.out.println("z값 불러옴(load : " + z + ")");
+                                    try {
+                                        this.block.add(blocks.get(x).get(y).get(z));
+                                        X.add(loc.getBlockX() + x);
+                                        Y.add(loc.getBlockY() + y);
+                                        Z.add(loc.getBlockZ() + z);
+                                        System.out.println("블럭 불러옴(" + blocks.get(x).get(y).get(z).getType() + ")");
+                                        Thread.sleep(1);
+                                    } catch (InterruptedException e) {
+                                    }
                                 }
                             }
                         }
-                    }
-                });
-                Bukkit.getScheduler().runTaskTimer(MamongUs.getPlugin(), () -> {
-                    while(block.size() > 0) {
-                        //loc.getWorld().getBlockAt(X.peek(), Y.peek(), Z.peek()).setType(block.peek().getType());
-                        //loc.getWorld().getBlockAt(X.peek(), Y.peek(), Z.peek()).setBlockData(block.poll().getBlockData());
-                        loc.getWorld().getBlockAt(X.poll(), Y.poll(), Z.poll()).setType(Material.ORANGE_STAINED_GLASS, false);
-                    }
-                    while(sX.size() > 0) {
-                        loc.getWorld().getBlockAt(sX.poll(), sY.poll(), sZ.poll()).setType(Material.ORANGE_STAINED_GLASS, false);
-                    }
-                },1, 0);
-                break;
+                    });
+                    Bukkit.getScheduler().runTaskTimer(MamongUs.getPlugin(), () -> {
+                        while (block.size() > 0) {
+                            //loc.getWorld().getBlockAt(X.peek(), Y.peek(), Z.peek()).setType(block.peek().getType());
+                            //loc.getWorld().getBlockAt(X.peek(), Y.peek(), Z.peek()).setBlockData(block.poll().getBlockData());
+                            loc.getWorld().getBlockAt(X.poll(), Y.poll(), Z.poll()).setType(Material.ORANGE_STAINED_GLASS, false);
+                        }
+                        while (sX.size() > 0) {
+                            loc.getWorld().getBlockAt(sX.poll(), sY.poll(), sZ.poll()).setType(Material.ORANGE_STAINED_GLASS, false);
+                        }
+                    }, 1, 0);
+                    break loop;
+                }
             }
-        }
+        }).start();
     }
 
     public int getBlockCount() {
@@ -421,156 +430,177 @@ public class SectionData {
         });
     }
 
-    public void load(Location loc, boolean force, String direction, LivingEntity sender) {
-        while (true) {
-            if (!isSaving) {
-                try {
-                    Direction dir = Direction.toDirection(direction);
-                    if (!force) {
-                        loop: for (int i = 0;; i++) {
-                            loopY: for (int y = 0; y <= 5; y++) {
-                                switch (dir) {
-                                    case SOUTH:
-                                        if (isAir(loc)) {
-                                            load(loc.add(0, Math.abs(pos1.getBlockY() - pos2.getBlockY()) * y, (Math.abs(pos1.getBlockZ() - pos2.getBlockZ()) + 1) * i));
-                                            break loop;
-                                        }
-                                        break;
-                                    case NORTH:
-                                        if (isAir(loc)) {
-                                            load(loc.add(0, Math.abs(pos1.getBlockY() - pos2.getBlockY()) * y, (-(Math.abs(pos1.getBlockZ() - pos2.getBlockZ()) + 1)) * i));
-                                            break loop;
-                                        }
-                                        break;
-                                    case EAST:
-                                        if (isAir(loc)) {
-                                            load(loc.add((Math.abs(pos1.getBlockX() - pos2.getBlockX()) + 1) * i, Math.abs(pos1.getBlockY() - pos2.getBlockY()) * y, 0));
-                                            break loop;
-                                        }
-                                        break;
-                                    case WEST:
-                                        if (isAir(loc)) {
-                                            load(loc.add((-(Math.abs(pos1.getBlockX() - pos2.getBlockX()) + 1)) * i, Math.abs(pos1.getBlockY() - pos2.getBlockY()) * y, 0));
-                                            break loop;
-                                        }
-                                        break;
-                                    case UP:
-                                        if (isAir(loc)) {
-                                            load(loc.add(0, (Math.abs(pos1.getBlockY() - pos2.getBlockY()) + 1) * i, 0));
-                                            break loop;
-                                        }
-                                        break;
-                                    case DOWN:
-                                        if (isAir(loc)) {
-                                            load(loc.add(0, -(Math.abs(pos1.getBlockY() - pos2.getBlockY()) + 1) * i, 0));
-                                            break loop;
-                                        }
-                                        break;
+    public int[] load(Location loc, boolean force, String direction, LivingEntity sender) {
+        final int[] result = new int[3];
+        new Thread(() -> {
+            int x = 0;
+            int y = 0;
+            int z = 0;
+            while (true) {
+                if (!isSaving) {
+                    try {
+                        Direction dir = Direction.toDirection(direction);
+                        if (!force) {
+                            loop: for (int i = 0; ; i++) {
+                                loopY :for (int Y = 0; Y <= 5 ; Y++) {
+                                    switch (dir) {
+                                        case SOUTH:
+                                            if (isAir(loc)) {
+                                                y = (pos1.getBlockY() - pos2.getBlockY()) * i;
+                                                z = (Math.abs(pos1.getBlockZ() - pos2.getBlockZ()) + 1) * i;
+                                                load(loc.add(x, y, z));
+                                                break loop;
+                                            }
+                                            break;
+                                        case NORTH:
+                                            if (isAir(loc)) {
+                                                y = (pos1.getBlockY() - pos2.getBlockY()) * i;
+                                                z = (-(Math.abs(pos1.getBlockZ() - pos2.getBlockZ()) + 1)) * i;
+                                                load(loc.add(x, y, z));
+                                                break loop;
+                                            }
+                                            break;
+                                        case EAST:
+                                            if (isAir(loc)) {
+                                                x = (Math.abs(pos1.getBlockX() - pos2.getBlockX()) + 1) * i;
+                                                y = (pos1.getBlockY() - pos2.getBlockY()) * i;
+                                                load(loc.add(x, y, z));
+                                                break loop;
+                                            }
+                                            break;
+                                        case WEST:
+                                            if (isAir(loc)) {
+                                                x = (-(Math.abs(pos1.getBlockX() - pos2.getBlockX()) + 1)) * i;
+                                                y = (pos1.getBlockY() - pos2.getBlockY()) * i;
+                                                load(loc.add(x, y, z));
+                                                break loop;
+                                            }
+                                            break;
+                                    }
                                 }
                             }
-                        }
-                    } else {
-                        switch (dir) {
-                            case SOUTH:
-                                load(loc.add(0, 0, Math.abs(pos1.getBlockZ() - pos2.getBlockZ()) + 1));
-                                break;
-                            case NORTH:
-                                load(loc.add(0, 0, -(Math.abs(pos1.getBlockZ() - pos2.getBlockZ()) + 1)));
-                                break;
-                            case EAST:
-                                load(loc.add(Math.abs(pos1.getBlockX() - pos2.getBlockX()) + 1, 0, 0));
-                                break;
-                            case WEST:
-                                load(loc.add(-(Math.abs(pos1.getBlockX() - pos2.getBlockX()) + 1), 0, 0));
-                                break;
-                            case UP:
-                                load(loc.add(0, Math.abs(pos1.getBlockY() - pos2.getBlockY()) + 1, 0));
-                                break;
-                            case DOWN:
-                                load(loc.add(0, -(Math.abs(pos1.getBlockY() - pos2.getBlockY()) + 1), 0));
-                                break;
-                        }
-                    }
-                } catch (IllegalArgumentException ex) {
-                    sender.sendMessage("§c알 수 없는 방향입니다");
-                }
-                break;
-            }
-        }
-    }
-
-    public void load(Location loc, boolean force, String direction) {
-        while (true) {
-            if (!isSaving) {
-                try {
-                    Direction dir = Direction.toDirection(direction);
-                    if (!force) {
-                        loop:
-                        for (int i = 0; ; i++) {
+                        } else {
                             switch (dir) {
                                 case SOUTH:
-                                    if (isAir(loc)) {
-                                        load(loc.add(0, 0, (Math.abs(pos1.getBlockZ() - pos2.getBlockZ()) + 1) * i));
-                                        break loop;
-                                    }
+                                    z = Math.abs(pos1.getBlockZ() - pos2.getBlockZ()) + 1;
+                                    load(loc.add(x ,y ,z));
                                     break;
                                 case NORTH:
-                                    if (isAir(loc)) {
-                                        load(loc.add(0, 0, (-(Math.abs(pos1.getBlockZ() - pos2.getBlockZ()) + 1)) * i));
-                                        break loop;
-                                    }
+                                    z = -(Math.abs(pos1.getBlockZ() - pos2.getBlockZ()) + 1);
+                                    load(loc.add(x, y, z));
                                     break;
                                 case EAST:
-                                    if (isAir(loc)) {
-                                        load(loc.add((Math.abs(pos1.getBlockX() - pos2.getBlockX()) + 1) * i, 0, 0));
-                                        break loop;
-                                    }
+                                    x = Math.abs(pos1.getBlockX() - pos2.getBlockX()) + 1;
+                                    load(loc.add(x , y, z));
                                     break;
                                 case WEST:
-                                    if (isAir(loc)) {
-                                        load(loc.add((-(Math.abs(pos1.getBlockX() - pos2.getBlockX()) + 1)) * i, 0, 0));
-                                        break loop;
-                                    }
+                                    x = -(Math.abs(pos1.getBlockX() - pos2.getBlockX()) + 1);
+                                    load(loc.add(x, y, z));
                                     break;
                                 case UP:
-                                    if (isAir(loc)) {
-                                        load(loc.add((Math.abs(pos1.getBlockY() - pos2.getBlockY()) + 1) * i, 0, 0));
-                                        break loop;
-                                    }
+                                    y = Math.abs(pos1.getBlockY() - pos2.getBlockY()) + 1;
+                                    load(loc.add(x , y, z));
                                     break;
                                 case DOWN:
-                                    if (isAir(loc)) {
-                                        load(loc.add(-(Math.abs(pos1.getBlockY() - pos2.getBlockY()) + 1) * i, 0, 0));
-                                        break loop;
-                                    }
+                                    y = -(Math.abs(pos1.getBlockY() - pos2.getBlockY()) + 1);
+                                    load(loc.add(x, y, z));
                                     break;
                             }
                         }
-                    } else {
-                        switch (dir) {
-                            case SOUTH:
-                                load(loc.add(0, 0, Math.abs(pos1.getBlockZ() - pos2.getBlockZ()) + 1));
-                                break;
-                            case NORTH:
-                                load(loc.add(0, 0, -(Math.abs(pos1.getBlockZ() - pos2.getBlockZ()) + 1)));
-                                break;
-                            case EAST:
-                                load(loc.add(Math.abs(pos1.getBlockX() - pos2.getBlockX()) + 1, 0, 0));
-                                break;
-                            case WEST:
-                                load(loc.add(-(Math.abs(pos1.getBlockX() - pos2.getBlockX()) + 1), 0, 0));
-                                break;
-                            case UP:
-                                load(loc.add(Math.abs(pos1.getBlockY() - pos2.getBlockY()) + 1, 0, 0));
-                                break;
-                            case DOWN:
-                                load(loc.add(-(Math.abs(pos1.getBlockY() - pos2.getBlockY()) + 1), 0, 0));
-                                break;
-                        }
+                    } catch (IllegalArgumentException ex) {
+                        sender.sendMessage("§c알 수 없는 방향입니다");
                     }
-                } catch (IllegalArgumentException ex) { }
-                break;
+                    break;
+                }
             }
-        }
+            result[0] = x;
+        }).start();
+        return result;
+    }
+
+    public int[] load(Location loc, boolean force, String direction) {
+        final int[] result = new int[3];
+        new Thread(() -> {
+            int x = 0;
+            int y = 0;
+            int z = 0;
+            while (true) {
+                if (!isSaving) {
+                    try {
+                        Direction dir = Direction.toDirection(direction);
+                        if (!force) {
+                            loop: for (int i = 0; ; i++) {
+                                loopY :for (int Y = 0; Y <= 5 ; Y++) {
+                                    switch (dir) {
+                                        case SOUTH:
+                                            if (isAir(loc)) {
+                                                y = (pos1.getBlockY() - pos2.getBlockY()) * i;
+                                                z = (Math.abs(pos1.getBlockZ() - pos2.getBlockZ()) + 1) * i;
+                                                load(loc.add(x, y, z));
+                                                break loop;
+                                            }
+                                            break;
+                                        case NORTH:
+                                            if (isAir(loc)) {
+                                                y = (pos1.getBlockY() - pos2.getBlockY()) * i;
+                                                z = (-(Math.abs(pos1.getBlockZ() - pos2.getBlockZ()) + 1)) * i;
+                                                load(loc.add(x, y, z));
+                                                break loop;
+                                            }
+                                            break;
+                                        case EAST:
+                                            if (isAir(loc)) {
+                                                x = (Math.abs(pos1.getBlockX() - pos2.getBlockX()) + 1) * i;
+                                                y = (pos1.getBlockY() - pos2.getBlockY()) * i;
+                                                load(loc.add(x, y, z));
+                                                break loop;
+                                            }
+                                            break;
+                                        case WEST:
+                                            if (isAir(loc)) {
+                                                x = (-(Math.abs(pos1.getBlockX() - pos2.getBlockX()) + 1)) * i;
+                                                y = (pos1.getBlockY() - pos2.getBlockY()) * i;
+                                                load(loc.add(x, y, z));
+                                                break loop;
+                                            }
+                                            break;
+                                    }
+                                }
+                            }
+                        } else {
+                            switch (dir) {
+                                case SOUTH:
+                                    z = Math.abs(pos1.getBlockZ() - pos2.getBlockZ()) + 1;
+                                    load(loc.add(x ,y ,z));
+                                    break;
+                                case NORTH:
+                                    z = -(Math.abs(pos1.getBlockZ() - pos2.getBlockZ()) + 1);
+                                    load(loc.add(x, y, z));
+                                    break;
+                                case EAST:
+                                    x = Math.abs(pos1.getBlockX() - pos2.getBlockX()) + 1;
+                                    load(loc.add(x , y, z));
+                                    break;
+                                case WEST:
+                                    x = -(Math.abs(pos1.getBlockX() - pos2.getBlockX()) + 1);
+                                    load(loc.add(x, y, z));
+                                    break;
+                                case UP:
+                                    y = Math.abs(pos1.getBlockY() - pos2.getBlockY()) + 1;
+                                    load(loc.add(x , y, z));
+                                    break;
+                                case DOWN:
+                                    y = -(Math.abs(pos1.getBlockY() - pos2.getBlockY()) + 1);
+                                    load(loc.add(x, y, z));
+                                    break;
+                            }
+                        }
+                    } catch (IllegalArgumentException ex) { }
+                    break;
+                }
+            }
+            result[0] = x;
+        }).start();
+        return result;
     }
 }

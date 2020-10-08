@@ -20,6 +20,7 @@ plugin\environment\lobby\Potal.class
 plugin\tools\LocationSetter.class
 plugin\environment\Vent.class
 plugin\tools\data\SectionData.class
+plugin\tools\data\RoomData$State.class
 plugin\environment\lobby\Room.class
 plugin\tools\data\GameType.class
 plugin\tools\data\RoomData.class

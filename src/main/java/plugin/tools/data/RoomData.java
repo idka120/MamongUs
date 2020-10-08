@@ -1,6 +1,5 @@
 package plugin.tools.data;
 
-import org.bukkit.Bukkit;
 import plugin.environment.lobby.Room;
 import plugin.tools.SectionSetter;
 
@@ -8,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-public class    RoomData {
+public class RoomData {
 
     //변하는 방정보
     private int nowPlayer;
@@ -16,6 +15,8 @@ public class    RoomData {
     private final List<UUID> survivals = new ArrayList<>();
     private final List<UUID> imposters = new ArrayList<>();
     private boolean showTask;
+
+    private State state;
 
     //영구적 방정보
     private final int maxPlayer;
@@ -25,14 +26,21 @@ public class    RoomData {
     private final int minPlayer;
     private final SectionData data;
 
+    public enum State {
+        Empty,
+        Waiting,
+        Playing
+    }
+
     public RoomData(GameType type, UUID owner, String code, SectionData data) {
         this.maxPlayer = type.getMaxPlayer();
         this.owner = owner;
         this.code = code;
         this.imposterCount = type.getImposterCount();
         this.data = data;
+        state = State.Waiting;
         minPlayer = type.getMinPlayer();
-        data.load(data.getPos2(), false, SectionSetter.dir.get(type));
+        int[] ints = data.load(data.getPos1(), false, SectionSetter.dir.get(type));
     }
 
     public boolean eject(UUID player) {
