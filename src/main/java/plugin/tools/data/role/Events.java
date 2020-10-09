@@ -13,6 +13,6 @@ public class Events implements Listener {
 
     @EventHandler
     public void onHeld(PlayerItemHeldEvent e) {
-        Role role
+        Role role = roles.get(e.getPlayer().getUniqueId());
     }
 }
