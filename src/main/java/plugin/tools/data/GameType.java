@@ -1,10 +1,5 @@
 package plugin.tools.data;
 
-import org.bukkit.inventory.Inventory;
-
-import java.util.HashMap;
-import java.util.UUID;
-
 public enum GameType {
     OneImposter(4, 10, 1),
     TwoImposter(7, 10, 2),
