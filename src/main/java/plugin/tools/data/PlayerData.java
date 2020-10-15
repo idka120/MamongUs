@@ -1,17 +1,11 @@
 package plugin.tools.data;
 
-import plugin.tools.data.role.Role;
+import java.util.HashMap;
+import java.util.UUID;
 
 public class PlayerData {
 
-    private Role role;
+    public static final HashMap<UUID, PlayerData> data = new HashMap<>();
 
-    public PlayerData setRole(Role role) {
-        this.role = role;
-        return this;
-    }
 
-    public Role getRole() {
-        return role;
-    }
 }

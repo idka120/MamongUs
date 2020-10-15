@@ -1,5 +1,8 @@
 package plugin.tools.data;
 
+import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
 import plugin.environment.lobby.Room;
 import plugin.tools.SectionSetter;
 
@@ -11,20 +14,19 @@ public class RoomData {
 
     //변하는 방정보
     private int nowPlayer;
-    private final List<UUID> playerList = new ArrayList<>();
-    private final List<UUID> survivals = new ArrayList<>();
-    private final List<UUID> imposters = new ArrayList<>();
+    private final List<Player> playerList = new ArrayList<>();
+    private final List<Player> survivals = new ArrayList<>();
+    private final List<Player> imposters = new ArrayList<>();
     private boolean showTask;
 
     private State state;
 
     //영구적 방정보
     private final int maxPlayer;
-    private final UUID owner;
+    private final Player owner;
     private final String code;
     private final int imposterCount;
     private final int minPlayer;
-    private final SectionData data;
 
     public enum State {
         Empty,
@@ -32,18 +34,16 @@ public class RoomData {
         Playing
     }
 
-    public RoomData(GameType type, UUID owner, String code, SectionData data) {
+    public RoomData(GameType type, Player owner, String code) {
         this.maxPlayer = type.getMaxPlayer();
         this.owner = owner;
         this.code = code;
         this.imposterCount = type.getImposterCount();
-        this.data = data;
         state = State.Waiting;
         minPlayer = type.getMinPlayer();
-        int[] ints = data.load(data.getPos1(), false, SectionSetter.dir.get(type));
     }
 
-    public boolean eject(UUID player) {
+    public boolean eject(Player player) {
         if(imposters.contains(player)) {
             imposters.remove(player);
             return true;
@@ -52,15 +52,15 @@ public class RoomData {
         return false;
     }
 
-    public RoomData join(UUID uuid) {
-        playerList.add(uuid);
+    public RoomData join(Player p) {
+        playerList.add(p);
         nowPlayer += 1;
-        if(nowPlayer > maxPlayer) quit(uuid);
+        if(nowPlayer > maxPlayer) quit(p);
         return this;
     }
 
-    public void quit(UUID uuid) {
-        playerList.remove(uuid);
+    public void quit(Player p) {
+        playerList.remove(p);
         nowPlayer -= 1;
         if(nowPlayer <= 0) {
             delete();
@@ -72,4 +72,7 @@ public class RoomData {
             Room.data.remove(code);
         }
     }
+}
+class RoomEvent implements Listener {
+
 }

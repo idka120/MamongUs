@@ -25,8 +25,8 @@ public class Room implements Listener {
     private static final Inventory setting = Bukkit.createInventory(null, 27, "§e방 생성");
 
     public static void createRoom(UUID owner, GameType type) {
-        SectionData data = SectionSetter.data.get(SectionSetter.what.get(type));
-        Room.data.put(Bukkit.getPlayer(owner).getName(), new RoomData(type, owner, Code.getCode(6), data));
+        //SectionData data = SectionSetter.data.get(SectionSetter.what.get(type));
+        //Room.data.put(Bukkit.getPlayer(owner).getName(), new RoomData(type, owner, Code.getCode(6), data));
     }
 
     @EventHandler

@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" build-on-make="true" name="Mamongus:jar">
+    <output-path>$PROJECT_DIR$/../../../Servers/SpigotServers/1.16.1-Test/plugins</output-path>
+    <root id="archive" name="Mamongus.jar">
+      <element id="module-output" name="Mamongus" />
+    </root>
+  </artifact>
+</component>
