@@ -6,11 +6,10 @@ import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.entity.EntityDropItemEvent;
 import org.bukkit.event.player.PlayerItemHeldEvent;
 
-import java.util.*;
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.LinkedList;
+import java.util.Queue;
 
 public class Events implements Listener {
 
@@ -32,7 +31,7 @@ public class Events implements Listener {
                             p.getNearbyEntities(3, 3, 3).forEach(entity -> {
                                 if (entity instanceof LivingEntity && entity != p && !(entity instanceof ArmorStand)) targets.add((LivingEntity) entity);
                             });
-                            ((Imposter) role).check(p.getLocation(), 3, targets.poll());
+                            ((Imposter) role).check(p.getLocation().getBlock().getLocation(), 3, targets.poll(), p);
                         }catch (NullPointerException ex) {}
                     }
                     break;

@@ -17,10 +17,10 @@ public class TestCommands implements CommandExecutor {
             Crewmate c = new Crewmate((Player) sender);
             c.setInventory();
         }else if(cmd.getName().equalsIgnoreCase("test")) {
-            Imposter i = new Imposter((Player) sender);
+            Imposter i = new Imposter((Player) sender, 10);
             i.setInventory();
         }else if(cmd.getName().equalsIgnoreCase("test2")) {
-            Imposter i = new Imposter((Player) sender);
+            Imposter i = new Imposter((Player) sender, 10);
             i.killTest();
         }
         return false;
